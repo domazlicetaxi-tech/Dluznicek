@@ -173,41 +173,41 @@
     <div id="login-section">
         <h1>🔐 Přihlášení do zápisníčku</h1>
         <div class="form-group">
-            <label for="username">Uživatelské jméno:</label>
-            <input type="text" id="username" placeholder="Zadej své jméno">
+            <label for="username">E-mailová adresa:</label>
+            <input type="email" id="username" placeholder="jmeno@email.cz">
         </div>
         <div class="form-group">
             <label for="password">Heslo:</label>
             <input type="password" id="password" placeholder="Zadej své heslo">
         </div>
-        <button onclick="handleLogin()">Přihlásit se</button>
-        <div class="toggle-link">Nemáš ještě účet? <span onclick="showRegisterPage()">Chci se zaregistrovat</span></div>
+        <button id="btn-login">Přihlásit se</button>
+        <div class="toggle-link">Nemáš ještě účet? <span id="go-to-register">Chci se zaregistrovat</span></div>
         <p id="login-error" class="error-message"></p>
     </div>
 
     <div id="register-section" class="hidden">
         <h1>✨ Nový uživatelský účet</h1>
         <div class="form-group">
-            <label for="reg-username">Napiš uživatelské jméno:</label>
-            <input type="text" id="reg-username" placeholder="Např. petr123">
+            <label for="reg-username">E-mailová adresa:</label>
+            <input type="email" id="reg-username" placeholder="např. petr@seznam.cz">
         </div>
         <div class="form-group">
-            <label for="reg-password">Vytvoř heslo:</label>
+            <label for="reg-password">Vytvoř heslo (min. 6 znaků):</label>
             <input type="password" id="reg-password" placeholder="Tvoje tajné heslo">
         </div>
         <div class="form-group">
             <label for="reg-password-check">Potvrď heslo:</label>
             <input type="password" id="reg-password-check" placeholder="Zadej stejné heslo znovu">
         </div>
-        <button onclick="handleRegister()" class="btn-success">Vytvořit účet a přihlásit se</button>
-        <div class="toggle-link">Už máš účet? <span onclick="showLoginPage()">Zpět na přihlášení</span></div>
+        <button id="btn-register" class="btn-success">Vytvořit účet a přihlásit se</button>
+        <div class="toggle-link">Už máš účet? <span id="go-to-login">Zpět na přihlášení</span></div>
         <p id="register-error" class="error-message"></p>
     </div>
 
     <div id="main-section" class="hidden">
         <div class="header-ui">
             <div>Přihlášen jako: <strong id="current-user-display">...</strong></div>
-            <button id="logout-btn" onclick="handleLogout()">Odhlásit se</button>
+            <button id="logout-btn">Odhlásit se</button>
         </div>
         
         <h1>📝 Evidence dlužníků</h1>
@@ -216,15 +216,15 @@
         <p style="text-align: center; color: #7f8c8d; font-size: 0.85rem; margin-top: -10px;">(Kliknutím na boxy níže můžete seznam rychle filtrovat)</p>
         
         <div class="admin-dashboard">
-            <div class="stat-box" id="box-debt" onclick="setAdminFilter('debt')">
+            <div class="stat-box" id="box-debt">
                 <h4>Celkový skutečný dluh 🔴</h4>
                 <p id="stat-total-debt" style="color: var(--danger);">0.00 Kč</p>
             </div>
-            <div class="stat-box" id="box-surplus" onclick="setAdminFilter('surplus')">
+            <div class="stat-box" id="box-surplus">
                 <h4>Celkové přeplatky 🟢</h4>
                 <p id="stat-total-surplus" style="color: var(--success);">0.00 Kč</p>
             </div>
-            <div class="stat-box" id="box-all" onclick="setAdminFilter('all')">
+            <div class="stat-box" id="box-all">
                 <h4>Osob v evidenci (Vše) 👥</h4>
                 <p id="stat-total-people">0</p>
             </div>
@@ -232,7 +232,7 @@
 
         <div class="search-panel">
             <label for="search-input" style="color: #856404; margin-bottom: 8px;">🔍 Rychlé vyhledávání / Filtr dlužníků:</label>
-            <input type="text" id="search-input" oninput="renderDebtors()" placeholder="Zadejte jméno, adresu nebo číslo OP dlužníka...">
+            <input type="text" id="search-input" placeholder="Zadejte jméno, adresu nebo číslo OP dlužníka...">
         </div>
         
         <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #e0e0e0;">
@@ -270,14 +270,14 @@
                 </div>
             </div>
             
-            <button onclick="addDebtor()" class="btn-success" style="margin-top: 10px;">Uložit dlužníka do evidence</button>
+            <button id="btn-add-debtor" class="btn-success" style="margin-top: 10px;">Uložit dlužníka do evidence</button>
         </div>
 
         <h2>Můj seznam dlužníků</h2>
         
         <div id="filter-info-bar" class="filter-info-bar hidden">
             <span id="filter-info-text">Zobrazeni pouze lidé s dluhem.</span>
-            <button onclick="setAdminFilter('all')" class="btn-danger" style="width: auto; padding: 4px 10px; font-size: 12px;">Zrušit filtr</button>
+            <button id="btn-clear-filter" class="btn-danger" style="width: auto; padding: 4px 10px; font-size: 12px;">Zrušit filtr</button>
         </div>
 
         <div id="debtors-container"></div>
@@ -286,37 +286,44 @@
 </div>
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, query, where, orderBy } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
+    // Konfigurace Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyB-JKwvRmH4gQcU-dwdUkPqmaOoVcd_pZo",
         authDomain: "duluznicek.firebaseapp.com",
-        databaseURL: "https://duluznicek-default-rtdb.europe-west1.firebasedatabase.app",
         projectId: "duluznicek",
         storageBucket: "duluznicek.firebasestorage.app",
         messagingSenderId: "486096122595",
         appId: "1:486096122595:web:6a5348661881d670c0cbd6"
     };
 
+    // Inicializace Firebase
     const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-    window.currentUser = null;
-    window.debtors = [];
+    // Globální proměnné aplikace
+    let currentUser = null;
+    let debtors = [];
     let tempPhotoBase64 = "";
-    window.editingDebtorId = null;
+    let editingDebtorId = null;
     let tempEditPhotoBase64 = "";
-    window.currentAdminFilter = "all";
+    let currentAdminFilter = "all";
+    let unsubscribeSnapshot = null; // Pro odpojení listeneru při odhlášení
 
-    window.escapeHTML = function(str) {
+    // Pomocná funkce proti XSS útokům
+    function escapeHTML(str) {
         if (!str) return '';
         return str.replace(/[&<>"']/g, function(match) {
             const escapeMap = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#x27;' };
             return escapeMap[match];
         });
-    };
+    }
 
+    // Komprese nahrávaných fotografií do Base64
     function compressImage(file, callback) {
         const reader = new FileReader();
         reader.onload = function(event) {
@@ -346,147 +353,150 @@
         reader.readAsDataURL(file);
     }
 
-    window.onload = function() {
-        const loggedInUser = sessionStorage.getItem("current_user");
-        if (loggedInUser) {
-            window.currentUser = loggedInUser;
+    // Sledování stavu přihlášení uživatele (Firebase Authentication)
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            currentUser = user;
             showMainPage();
         } else {
-            window.showLoginPage();
+            currentUser = null;
+            if (unsubscribeSnapshot) { unsubscribeSnapshot(); unsubscribeSnapshot = null; }
+            showLoginPage();
         }
+    });
 
-        document.getElementById('new-photo').addEventListener('change', function(e) {
-            if (e.target.files[0]) {
-                compressImage(e.target.files[0], function(base64Result) {
-                    tempPhotoBase64 = base64Result;
-                });
-            }
-        });
-    };
+    // Event listenery pro změnu souborů (fotografií)
+    document.getElementById('new-photo').addEventListener('change', function(e) {
+        if (e.target.files[0]) {
+            compressImage(e.target.files[0], function(base64Result) {
+                tempPhotoBase64 = base64Result;
+            });
+        }
+    });
 
-    window.showRegisterPage = function() {
+    // Navigační funkce
+    function showRegisterPage() {
         document.getElementById("login-section").classList.add("hidden");
         document.getElementById("main-section").classList.add("hidden");
         document.getElementById("register-section").classList.remove("hidden");
         document.getElementById("register-error").innerText = "";
-    };
+    }
 
-    window.showLoginPage = function() {
+    function showLoginPage() {
         document.getElementById("register-section").classList.add("hidden");
         document.getElementById("main-section").classList.add("hidden");
         document.getElementById("login-section").classList.remove("hidden");
         document.getElementById("login-error").innerText = "";
-    };
+    }
 
     function showMainPage() {
         document.getElementById("login-section").classList.add("hidden");
         document.getElementById("register-section").classList.add("hidden");
         document.getElementById("main-section").classList.remove("hidden");
-        document.getElementById("current-user-display").innerText = window.escapeHTML(window.currentUser);
+        document.getElementById("current-user-display").innerText = escapeHTML(currentUser.email);
         document.getElementById("search-input").value = "";
-        window.editingDebtorId = null;
-        window.currentAdminFilter = "all";
-        loadDebtors();
+        editingDebtorId = null;
+        setAdminFilter('all');
+        loadDebtorsCloud();
     }
 
-    window.handleRegister = async function() {
-        const u = document.getElementById("reg-username").value.trim().toLowerCase();
+    // Registrace nového uživatele do Firebase Auth
+    async function handleRegister() {
+        const email = document.getElementById("reg-username").value.trim();
         const p = document.getElementById("reg-password").value.trim();
         const pCheck = document.getElementById("reg-password-check").value.trim();
         const errorEl = document.getElementById("register-error");
 
-        if (!u || !p || !pCheck) { errorEl.innerText = "Musíš vyplnit všechna pole!"; return; }
+        if (!email || !p || !pCheck) { errorEl.innerText = "Musíš vyplnit všechna pole!"; return; }
         if (p !== pCheck) { errorEl.innerText = "Zadaná hesla se neshodují!"; return; }
+        if (p.length < 6) { errorEl.innerText = "Heslo musí mít alespoň 6 znaků!"; return; }
 
         try {
-            const dbRef = ref(getDatabase());
-            const snapshot = await get(child(dbRef, `users/${u}`));
-            if (snapshot.exists()) {
-                errorEl.innerText = "Tohle uživatelské jméno už existuje!";
+            await createUserWithEmailAndPassword(auth, email, p);
+        } catch (error) {
+            if (error.code === 'auth/email-already-in-use') {
+                errorEl.innerText = "Tento e-mail už je registrován!";
+            } else if (error.code === 'auth/invalid-email') {
+                errorEl.innerText = "Neplatný formát e-mailu!";
             } else {
-                await set(ref(db, 'users/' + u), p);
-                await set(ref(db, 'debtors/' + u), []);
-                
-                window.currentUser = u;
-                sessionStorage.setItem("current_user", u);
-                showMainPage();
+                errorEl.innerText = "Chyba při registraci: " + error.message;
             }
-        } catch (err) {
-            errorEl.innerText = "Chyba databáze při registraci.";
         }
-    };
+    }
 
-    window.handleLogin = async function() {
-        const u = document.getElementById("username").value.trim().toLowerCase();
+    // Přihlášení uživatele do Firebase Auth
+    async function handleLogin() {
+        const email = document.getElementById("username").value.trim();
         const p = document.getElementById("password").value.trim();
         const errorEl = document.getElementById("login-error");
 
-        try {
-            const dbRef = ref(getDatabase());
-            const snapshot = await get(child(dbRef, `users/${u}`));
-            if (snapshot.exists() && snapshot.val() === p) {
-                window.currentUser = u;
-                sessionStorage.setItem("current_user", u);
-                showMainPage();
-            } else {
-                errorEl.innerText = "Nesprávné jméno nebo heslo!";
-            }
-        } catch (err) {
-            errorEl.innerText = "Chyba při připojování k databázi.";
-        }
-    };
+        if (!email || !p) { errorEl.innerText = "Vyplň e-mail i heslo!"; return; }
 
-    window.handleLogout = function() {
-        sessionStorage.removeItem("current_user");
-        window.currentUser = null;
-        window.debtors = [];
-        window.showLoginPage();
-    };
-
-    async function loadDebtors() {
         try {
-            const dbRef = ref(getDatabase());
-            const snapshot = await get(child(dbRef, `debtors/${window.currentUser}`));
-            window.debtors = snapshot.exists() ? snapshot.val() : [];
-            if(window.debtors && !Array.isArray(window.debtors)) {
-                window.debtors = Object.values(window.debtors);
-            }
-            calculateStats();
-            window.renderDebtors();
+            await signInWithEmailAndPassword(auth, email, p);
         } catch (error) {
-            console.error("Chyba při načítání dlužníků:", error);
+            errorEl.innerText = "Nesprávný e-mail nebo heslo!";
         }
     }
 
-    async function saveDebtors() {
+    // Odhlášení
+    async function handleLogout() {
         try {
-            await set(ref(db, `debtors/${window.currentUser}`), window.debtors);
-            calculateStats();
-            window.renderDebtors();
-        } catch (err) {
-            alert("Chyba při ukládání dat do cloudu Firebase!");
+            await signOut(auth);
+        } catch (error) {
+            alert("Chyba při odhlašování.");
         }
     }
 
+    // Real-time načítání dlužníků z Firestore (pouze pro přihlášeného uživatele)
+    function loadDebtorsCloud() {
+        if (!currentUser) return;
+
+        // Vytvoříme dotaz: Chceme dlužníky, kde userId odpovídá přihlášenému uživateli
+        const q = query(
+            collection(db, "debtors"),
+            where("userId", "==", currentUser.uid),
+            orderBy("createdAt", "desc")
+        );
+
+        // onSnapshot automaticky překreslí aplikaci kdykoliv se data v databázi změní
+        unsubscribeSnapshot = onSnapshot(q, (querySnapshot) => {
+            debtors = [];
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                data.id = doc.id; // Použijeme Firestore ID dokumentu namísto původního Date.now()
+                debtors.push(data);
+            });
+            calculateStats();
+            renderDebtors();
+        }, (error) => {
+            console.error("Chyba při načítání dat z cloudu:", error);
+        });
+    }
+
+    // Výpočet statistik
     function calculateStats() {
         let totalDebt = 0;
         let totalSurplus = 0;
-        if(window.debtors) {
-            window.debtors.forEach(d => {
-                if (d.currentBalance > 0) { totalDebt += d.currentBalance; } 
-                else if (d.currentBalance < 0) { totalSurplus += Math.abs(d.currentBalance); }
-            });
-        }
+
+        debtors.forEach(d => {
+            if (d.currentBalance > 0) { totalDebt += d.currentBalance; } 
+            else if (d.currentBalance < 0) { totalSurplus += Math.abs(d.currentBalance); }
+        });
+
         document.getElementById("stat-total-debt").innerText = totalDebt.toFixed(2) + " Kč";
         document.getElementById("stat-total-surplus").innerText = totalSurplus.toFixed(2) + " Kč";
-        document.getElementById("stat-total-people").innerText = window.debtors ? window.debtors.length : 0;
+        document.getElementById("stat-total-people").innerText = debtors.length;
     }
 
-    window.setAdminFilter = function(filterType) {
-        window.currentAdminFilter = filterType;
+    // Filtry administrátorského dashboardu
+    function setAdminFilter(filterType) {
+        currentAdminFilter = filterType;
+        
         document.getElementById("box-debt").classList.remove("active-filter");
         document.getElementById("box-surplus").classList.remove("active-filter");
         document.getElementById("box-all").classList.remove("active-filter");
+        
         const infoBar = document.getElementById("filter-info-bar");
         const infoText = document.getElementById("filter-info-text");
 
@@ -502,70 +512,89 @@
             document.getElementById("box-all").classList.add("active-filter");
             infoBar.classList.add("hidden");
         }
-        window.renderDebtors();
-    };
 
-    window.addDebtor = function() {
+        renderDebtors();
+    }
+
+    // Přidání dlužníka do Firestore cloudu
+    async function addDebtor() {
         const nameInput = document.getElementById("new-name");
         const amountInput = document.getElementById("new-amount");
         const noteInput = document.getElementById("new-note");
         const addressInput = document.getElementById("new-address");
         const idcardInput = document.getElementById("new-idcard");
+        const photoInput = document.getElementById("new-photo");
 
         const name = nameInput.value.trim();
         const amount = parseFloat(amountInput.value);
         
         if (!name || isNaN(amount) || amount <= 0) { alert("Jméno a Kladná částka jsou povinné!"); return; }
+
         const now = new Date().toLocaleString("cs-CZ");
 
-        const newDebtor = {
-            id: Date.now(),
+        const newDebtorData = {
+            userId: currentUser.uid, // Klíčové: data patří tomuto uživateli
             name: name,
             currentBalance: amount,
             address: addressInput.value.trim() || "Neuvedeno",
             idcard: idcardInput.value.trim() || "Neuvedeno",
             photo: tempPhotoBase64,
-            history: [{ date: now, type: "Vznik dluhu", amount: amount, note: noteInput.value.trim() || "Počáteční dluh" }]
+            history: [{ date: now, type: "Vznik dluhu", amount: amount, note: noteInput.value.trim() || "Počáteční dluh" }],
+            createdAt: Date.now() // Pro seřazení
         };
 
-        if(!window.debtors) window.debtors = [];
-        window.debtors.push(newDebtor);
-        saveDebtors();
+        try {
+            await addDoc(collection(db, "debtors"), newDebtorData);
+            
+            // Vyčištění formuláře
+            nameInput.value = ""; amountInput.value = ""; noteInput.value = "";
+            addressInput.value = ""; idcardInput.value = ""; photoInput.value = "";
+            tempPhotoBase64 = "";
+        } catch (e) {
+            alert("Chyba při ukládání na server: " + e.message);
+        }
+    }
 
-        nameInput.value = ""; amountInput.value = ""; noteInput.value = "";
-        addressInput.value = ""; idcardInput.value = ""; 
-        document.getElementById("new-photo").value = "";
-        tempPhotoBase64 = "";
-    };
-
-    window.updateDebt = function(id, type) {
+    // Splátka / Navýšení dluhu ve Firestore cloudu
+    async function updateDebt(id, type) {
         const amountInput = document.getElementById(`amount-${id}`);
         const noteInput = document.getElementById(`note-${id}`);
         const amount = parseFloat(amountInput.value);
 
         if (isNaN(amount) || amount <= 0) { alert("Zadejte platnou kladnou částku."); return; }
-        const debtor = window.debtors.find(d => d.id === id);
+
+        const debtor = debtors.find(d => d.id === id);
         if (!debtor) return;
 
         const now = new Date().toLocaleString("cs-CZ");
+        let newBalance = debtor.currentBalance;
+        let newHistory = [...debtor.history];
         
         if (type === 'pay') {
-            debtor.currentBalance -= amount;
-            if(!debtor.history) debtor.history = [];
-            debtor.history.unshift({ date: now, type: "Splátka", amount: -amount, note: noteInput.value.trim() || "Splátka" });
+            newBalance -= amount;
+            newHistory.unshift({ date: now, type: "Splátka", amount: -amount, note: noteInput.value.trim() || "Splátka" });
         } else if (type === 'increase') {
-            debtor.currentBalance += amount;
-            if(!debtor.history) debtor.history = [];
-            debtor.history.unshift({ date: now, type: "Nárůst dluhu", amount: amount, note: noteInput.value.trim() || "Navýšení" });
+            newBalance += amount;
+            newHistory.unshift({ date: now, type: "Nárůst dluhu", amount: amount, note: noteInput.value.trim() || "Navýšení" });
         }
-        saveDebtors();
-    };
 
-    window.enableEditMode = function(id) {
-        window.editingDebtorId = id;
-        const debtor = window.debtors.find(d => d.id === id);
+        try {
+            const docRef = doc(db, "debtors", id);
+            await updateDoc(docRef, {
+                currentBalance: newBalance,
+                history: newHistory
+            });
+        } catch (e) {
+            alert("Chyba při aktualizaci na serveru: " + e.message);
+        }
+    }
+
+    // Aktivace editačního módu
+    function enableEditMode(id) {
+        editingDebtorId = id;
+        const debtor = debtors.find(d => d.id === id);
         tempEditPhotoBase64 = debtor ? debtor.photo : "";
-        window.renderDebtors();
+        renderDebtors();
 
         const editPhotoInput = document.getElementById(`edit-photo-${id}`);
         if (editPhotoInput) {
@@ -578,16 +607,17 @@
                 }
             });
         }
-    };
+    }
 
-    window.cancelEditMode = function() {
-        window.editingDebtorId = null;
+    function cancelEditMode() {
+        editingDebtorId = null;
         tempEditPhotoBase64 = "";
-        window.renderDebtors();
-    };
+        renderDebtors();
+    }
 
-    window.saveDebtorChanges = function(id) {
-        const debtor = window.debtors.find(d => d.id === id);
+    // Uložení upravených údajů do Firestore
+    async function saveDebtorChanges(id) {
+        const debtor = debtors.find(d => d.id === id);
         if (!debtor) return;
 
         const editName = document.getElementById(`edit-name-${id}`).value.trim();
@@ -596,52 +626,44 @@
 
         if (!editName) { alert("Jméno nesmí být prázdné!"); return; }
 
-        debtor.name = editName;
-        debtor.address = editAddress || "Neuvedeno";
-        debtor.idcard = editIdCard || "Neuvedeno";
-        debtor.photo = tempEditPhotoBase64;
-
-        window.editingDebtorId = null;
-        tempEditPhotoBase64 = "";
-        saveDebtors();
-    };
-
-    window.deleteDebtor = async function(id) {
         try {
-            const dbRef = ref(getDatabase());
-            const snapshot = await get(child(dbRef, `users/${window.currentUser}`));
-            const correctPassword = snapshot.val();
-            const inputPassword = prompt("⚠️ BEZPEČNOSTNÍ POŽADAVEK\nPro kompletní smazání této karty musíte zadat vaše přihlašovací heslo:");
-            
-            if (inputPassword === null) return;
-
-            if (inputPassword === correctPassword) {
-                if (confirm("Heslo je správné. Opravdu si přejete dlužníka nevratně smazat z databáze?")) {
-                    window.debtors = window.debtors.filter(d => d.id !== id);
-                    if (window.editingDebtorId === id) window.editingDebtorId = null;
-                    saveDebtors();
-                }
-            } else {
-                alert("❌ Zadáno nesprávné heslo! Karta nebyla smazána.");
-            }
-        } catch (err) {
-            alert("Chyba při komunikaci s databází.");
+            const docRef = doc(db, "debtors", id);
+            await updateDoc(docRef, {
+                name: editName,
+                address: editAddress || "Neuvedeno",
+                idcard: editIdCard || "Neuvedeno",
+                photo: tempEditPhotoBase64
+            });
+            editingDebtorId = null;
+            tempEditPhotoBase64 = "";
+        } catch (e) {
+            alert("Chyba při úpravě na serveru: " + e.message);
         }
-    };
+    }
 
-    window.renderDebtors = function() {
+    // Smazání dlužníka z Firestore cloudu
+    async function deleteDebtor(id) {
+        if (confirm("Opravdu si přejete tohoto dlužníka nevratně smazat z databáze?")) {
+            try {
+                const docRef = doc(db, "debtors", id);
+                await deleteDoc(docRef);
+                if (editingDebtorId === id) editingDebtorId = null;
+            } catch (e) {
+                alert("Chyba při mazání na serveru: " + e.message);
+            }
+        }
+    }
+
+    // Vykreslení seznamu dlužníků (Zůstává téměř identické s vaší verzí)
+    function renderDebtors() {
         const container = document.getElementById("debtors-container");
         container.innerHTML = "";
+
         const searchQuery = document.getElementById("search-input").value.trim().toLowerCase();
 
-        if (!window.debtors || window.debtors.length === 0) {
-            container.innerHTML = "<p style='text-align:center; color: #7f8c8d; padding: 20px;'>Žádné záznamy neodpovídají zvoleným filtrům.</p>";
-            return;
-        }
-
-        let processedDebtors = window.debtors.filter(debtor => {
-            if (window.currentAdminFilter === 'debt') return debtor.currentBalance > 0;
-            if (window.currentAdminFilter === 'surplus') return debtor.currentBalance < 0;
+        let processedDebtors = debtors.filter(debtor => {
+            if (currentAdminFilter === 'debt') return debtor.currentBalance > 0;
+            if (currentAdminFilter === 'surplus') return debtor.currentBalance < 0;
             return true;
         });
 
@@ -658,25 +680,23 @@
 
         processedDebtors.forEach(debtor => {
             const isCleared = debtor.currentBalance <= 0;
-            const isEditing = debtor.id === window.editingDebtorId;
+            const isEditing = debtor.id === editingDebtorId;
             const card = document.createElement("div");
             card.className = "debtor-card";
 
             const photoSrc = debtor.photo ? debtor.photo : "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 24 24' fill='%23ccc'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>";
 
             let historyHtml = "";
-            if(debtor.history) {
-                debtor.history.forEach(h => {
-                    const amtColor = h.amount > 0 ? "color: red;" : "color: green;";
-                    const prefix = h.amount > 0 ? "+" : "";
-                    historyHtml += `
-                        <div class="history-item">
-                            <span><strong>${window.escapeHTML(h.date)}</strong> - ${window.escapeHTML(h.type)} (${window.escapeHTML(h.note)})</span>
-                            <span style="${amtColor}"><strong>${prefix}${h.amount.toFixed(2)} Kč</strong></span>
-                        </div>
-                    `;
-                });
-            }
+            debtor.history.forEach(h => {
+                const amtColor = h.amount > 0 ? "color: red;" : "color: green;";
+                const prefix = h.amount > 0 ? "+" : "";
+                historyHtml += `
+                    <div class="history-item">
+                        <span><strong>${escapeHTML(h.date)}</strong> - ${escapeHTML(h.type)} (${escapeHTML(h.note)})</span>
+                        <span style="${amtColor}"><strong>${prefix}${h.amount.toFixed(2)} Kč</strong></span>
+                    </div>
+                `;
+            });
 
             let balanceText = debtor.currentBalance.toFixed(2) + " Kč";
             if (debtor.currentBalance < 0) {
@@ -687,10 +707,11 @@
             let headerActionButtons = "";
 
             if (isEditing) {
+                card.dataset.id = debtor.id;
                 headerActionButtons = `
                     <div class="card-top-actions">
-                        <button onclick="saveDebtorChanges(${debtor.id})" class="btn-success" style="padding: 4px 10px; font-size:12px; width:auto;">💾 Uložit</button>
-                        <button onclick="cancelEditMode()" class="btn-secondary" style="padding: 4px 10px; font-size:12px; width:auto;">Zrušit</button>
+                        <button id="btn-save-edit-${debtor.id}" class="btn-success" style="padding: 4px 10px; font-size:12px; width:auto;">💾 Uložit</button>
+                        <button id="btn-cancel-edit-${debtor.id}" class="btn-secondary" style="padding: 4px 10px; font-size:12px; width:auto;">Zrušit</button>
                     </div>
                 `;
 
@@ -698,15 +719,15 @@
                     <div class="debtor-details">
                         <div class="edit-input-group">
                             <label>Celé jméno dlužníka:</label>
-                            <input type="text" id="edit-name-${debtor.id}" value="${window.escapeHTML(debtor.name)}">
+                            <input type="text" id="edit-name-${debtor.id}" value="${escapeHTML(debtor.name)}">
                         </div>
                         <div class="edit-input-group">
                             <label>📍 Adresa bydliště:</label>
-                            <input type="text" id="edit-address-${debtor.id}" value="${debtor.address === 'Neuvedeno' ? '' : window.escapeHTML(debtor.address)}" placeholder="Ulice 123, Město">
+                            <input type="text" id="edit-address-${debtor.id}" value="${debtor.address === 'Neuvedeno' ? '' : escapeHTML(debtor.address)}" placeholder="Ulice 123, Město">
                         </div>
                         <div class="edit-input-group">
                             <label>🪪 Občanský průkaz / ID:</label>
-                            <input type="text" id="edit-idcard-${debtor.id}" value="${debtor.idcard === 'Neuvedeno' ? '' : window.escapeHTML(debtor.idcard)}" placeholder="Číslo dokladu">
+                            <input type="text" id="edit-idcard-${debtor.id}" value="${debtor.idcard === 'Neuvedeno' ? '' : escapeHTML(debtor.idcard)}" placeholder="Číslo dokladu">
                         </div>
                         <div class="edit-input-group" style="margin-top:10px;">
                             <label>📸 Změnit fotografii:</label>
@@ -716,13 +737,13 @@
                 `;
             } else {
                 headerActionButtons = `
-                    <button onclick="enableEditMode(${debtor.id})" style="background-color: var(--primary); padding: 4px 10px; font-size:12px; width:auto;">✏️ Upravit údaje</button>
+                    <button id="btn-enable-edit-${debtor.id}" style="background-color: var(--primary); padding: 4px 10px; font-size:12px; width:auto;">✏️ Upravit údaje</button>
                 `;
 
                 detailsContent = `
                     <div class="debtor-details">
-                        📍 <strong>Adresa:</strong> ${window.escapeHTML(debtor.address)} <br>
-                        🪪 <strong>Občanský průkaz:</strong> ${window.escapeHTML(debtor.idcard)}
+                        📍 <strong>Adresa:</strong> ${escapeHTML(debtor.address)} <br>
+                        🪪 <strong>Občanský průkaz:</strong> ${escapeHTML(debtor.idcard)}
                     </div>
                 `;
             }
@@ -733,7 +754,7 @@
                 </div>
                 <div class="debtor-info-side">
                     <div class="debtor-header">
-                        ${isEditing ? `<span style="color:var(--primary); font-size:0.9rem; font-weight:bold;">⚙️ Režim úprav</span>` : `<span class="debtor-name">${window.escapeHTML(debtor.name)}</span>`}
+                        ${isEditing ? `<span style="color:var(--primary); font-size:0.9rem; font-weight:bold;">⚙️ Režim úprav</span>` : `<span class="debtor-name">${escapeHTML(debtor.name)}</span>`}
                         <span class="debtor-balance ${isCleared ? 'cleared' : ''}">${balanceText}</span>
                     </div>
                     
@@ -743,8 +764,8 @@
                         <input type="number" id="amount-${debtor.id}" placeholder="Částka" style="padding: 5px;" min="0.01" step="0.01">
                         <input type="text" id="note-${debtor.id}" placeholder="Poznámka" style="padding: 5px;">
                         <div style="display:flex; gap: 5px;">
-                            <button onclick="updateDebt(${debtor.id}, 'pay')" class="btn-success" style="padding: 5px; font-size:13px; width:auto;">Splatit</button>
-                            <button onclick="updateDebt(${debtor.id}, 'increase')" class="btn-danger" style="padding: 5px; font-size:13px; width:auto;">Navýšit</button>
+                            <button id="btn-pay-${debtor.id}" class="btn-success" style="padding: 5px; font-size:13px; width:auto;">Splatit</button>
+                            <button id="btn-inc-${debtor.id}" class="btn-danger" style="padding: 5px; font-size:13px; width:auto;">Navýšit</button>
                         </div>
                     </div>
 
@@ -756,13 +777,42 @@
                         <div>
                             ${headerActionButtons}
                         </div>
-                        <button onclick="deleteDebtor(${debtor.id})" class="btn-danger" style="padding: 4px 8px; font-size:11px; width: auto;">Smazat kartu</button>
+                        <button id="btn-del-${debtor.id}" class="btn-danger" style="padding: 4px 8px; font-size:11px; width: auto;">Smazat kartu</button>
                     </div>
                 </div>
             `;
             container.appendChild(card);
+
+            // Navázání eventů pro tlačítka dynamických karet
+            if (isEditing) {
+                document.getElementById(`btn-save-edit-${debtor.id}`).addEventListener('click', () => saveDebtorChanges(debtor.id));
+                document.getElementById(`btn-cancel-edit-${debtor.id}`).addEventListener('click', cancelEditMode);
+            } else {
+                document.getElementById(`btn-enable-edit-${debtor.id}`).addEventListener('click', () => enableEditMode(debtor.id));
+                document.getElementById(`btn-pay-${debtor.id}`).addEventListener('click', () => updateDebt(debtor.id, 'pay'));
+                document.getElementById(`btn-inc-${debtor.id}`).addEventListener('click', () => updateDebt(debtor.id, 'increase'));
+            }
+            document.getElementById(`btn-del-${debtor.id}`).addEventListener('click', () => deleteDebtor(debtor.id));
         });
-    };
+    }
+
+    // Prvky a navigace z globálního DOMu
+    document.getElementById("go-to-register").addEventListener("click", showRegisterPage);
+    document.getElementById("go-to-login").addEventListener("click", showLoginPage);
+    document.getElementById("btn-register").addEventListener("click", handleRegister);
+    document.getElementById("btn-login").addEventListener("click", handleLogin);
+    document.getElementById("logout-btn").addEventListener("click", handleLogout);
+    document.getElementById("btn-add-debtor").addEventListener("click", addDebtor);
+    document.getElementById("btn-clear-filter").addEventListener("click", () => setAdminFilter('all'));
+
+    // Filtrační boxy dashboardu
+    document.getElementById("box-debt").addEventListener("click", () => setAdminFilter('debt'));
+    document.getElementById("box-surplus").addEventListener("click", () => setAdminFilter('surplus'));
+    document.getElementById("box-all").addEventListener("click", () => setAdminFilter('all'));
+
+    // Vyhledávání na vstupu
+    document.getElementById("search-input").addEventListener("input", renderDebtors);
+
 </script>
 
 </body>
