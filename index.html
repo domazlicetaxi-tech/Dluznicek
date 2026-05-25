@@ -180,8 +180,8 @@
             <label for="password">Heslo:</label>
             <input type="password" id="password" placeholder="Zadej své heslo">
         </div>
-        <button onclick="handleLogin()">Přihlásit se</button>
-        <div class="toggle-link">Nemáš ještě účet? <span onclick="showRegisterPage()">Chci se zaregistrovat</span></div>
+        <button id="login-submit-btn">Přihlásit se</button>
+        <div class="toggle-link">Nemáš ještě účet? <span id="to-register-btn">Chci se zaregistrovat</span></div>
         <p id="login-error" class="error-message"></p>
     </div>
 
@@ -199,15 +199,15 @@
             <label for="reg-password-check">Potvrď heslo:</label>
             <input type="password" id="reg-password-check" placeholder="Zadej stejné heslo znovu">
         </div>
-        <button onclick="handleRegister()" class="btn-success">Vytvořit účet a přihlásit se</button>
-        <div class="toggle-link">Už máš účet? <span onclick="showLoginPage()">Zpět na přihlášení</span></div>
+        <button id="register-submit-btn" class="btn-success">Vytvořit účet a přihlásit se</button>
+        <div class="toggle-link">Už máš účet? <span id="to-login-btn">Zpět na přihlášení</span></div>
         <p id="register-error" class="error-message"></p>
     </div>
 
     <div id="main-section" class="hidden">
         <div class="header-ui">
             <div>Přihlášen jako: <strong id="current-user-display">...</strong></div>
-            <button id="logout-btn" onclick="handleLogout()">Odhlásit se</button>
+            <button id="logout-btn">Odhlásit se</button>
         </div>
         
         <h1>📝 Evidence dlužníků</h1>
@@ -216,15 +216,15 @@
         <p style="text-align: center; color: #7f8c8d; font-size: 0.85rem; margin-top: -10px;">(Kliknutím na boxy níže můžete seznam rychle filtrovat)</p>
         
         <div class="admin-dashboard">
-            <div class="stat-box" id="box-debt" onclick="setAdminFilter('debt')">
+            <div class="stat-box" id="box-debt">
                 <h4>Celkový skutečný dluh 🔴</h4>
                 <p id="stat-total-debt" style="color: var(--danger);">0.00 Kč</p>
             </div>
-            <div class="stat-box" id="box-surplus" onclick="setAdminFilter('surplus')">
+            <div class="stat-box" id="box-surplus">
                 <h4>Celkové přeplatky 🟢</h4>
                 <p id="stat-total-surplus" style="color: var(--success);">0.00 Kč</p>
             </div>
-            <div class="stat-box" id="box-all" onclick="setAdminFilter('all')">
+            <div class="stat-box" id="box-all">
                 <h4>Osob v evidenci (Vše) 👥</h4>
                 <p id="stat-total-people">0</p>
             </div>
@@ -232,7 +232,7 @@
 
         <div class="search-panel">
             <label for="search-input" style="color: #856404; margin-bottom: 8px;">🔍 Rychlé vyhledávání / Filtr dlužníků:</label>
-            <input type="text" id="search-input" oninput="renderDebtors()" placeholder="Zadejte jméno, adresu nebo číslo OP dlužníka...">
+            <input type="text" id="search-input" placeholder="Zadejte jméno, adresu nebo číslo OP dlužníka...">
         </div>
         
         <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #e0e0e0;">
@@ -270,14 +270,14 @@
                 </div>
             </div>
             
-            <button onclick="addDebtor()" class="btn-success" style="margin-top: 10px;">Uložit dlužníka do evidence</button>
+            <button id="add-debtor-btn" class="btn-success" style="margin-top: 10px;">Uložit dlužníka do evidence</button>
         </div>
 
         <h2>Můj seznam dlužníků</h2>
         
         <div id="filter-info-bar" class="filter-info-bar hidden">
             <span id="filter-info-text">Zobrazeni pouze lidé s dluhem.</span>
-            <button onclick="setAdminFilter('all')" class="btn-danger" style="width: auto; padding: 4px 10px; font-size: 12px;">Zrušit filtr</button>
+            <button id="reset-filter-btn" class="btn-danger" style="width: auto; padding: 4px 10px; font-size: 12px;">Zrušit filtr</button>
         </div>
 
         <div id="debtors-container"></div>
@@ -285,7 +285,25 @@
 
 </div>
 
-<script>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+    // Konfigurace tvého Firebase projektu
+    const firebaseConfig = {
+        apiKey: "AIzaSyBJPyDf_VEj210bGxYpF9zFmyZ0ANr3Ax8",
+        authDomain: "dluznicek-8eb12.firebaseapp.com",
+        projectId: "dluznicek-8eb12",
+        storageBucket: "dluznicek-8eb12.firebasestorage.app",
+        messagingSenderId: "380824954763",
+        appId: "1:380824954763:web:e830905a8b00cdbca9b18e"
+    };
+
+    // Inicializace
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Globální proměnné aplikace
     let currentUser = null;
     let debtors = [];
     let tempPhotoBase64 = "";
@@ -299,6 +317,17 @@
             const escapeMap = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#x27;' };
             return escapeMap[match];
         });
+    }
+
+    function hashPasswordSync(password) {
+        let hash = 0;
+        if (password.length === 0) return hash.toString();
+        for (let i = 0; i < password.length; i++) {
+            const chr = password.charCodeAt(i);
+            hash = ((hash << 5) - hash) + chr;
+            hash |= 0; 
+        }
+        return "secure_" + Math.abs(hash).toString(16);
     }
 
     function compressImage(file, callback) {
@@ -330,7 +359,8 @@
         reader.readAsDataURL(file);
     }
 
-    window.onload = function() {
+    // Inicializace událostí po načtení stránky
+    window.addEventListener('DOMContentLoaded', () => {
         const loggedInUser = sessionStorage.getItem("current_user");
         if (loggedInUser) {
             currentUser = loggedInUser;
@@ -339,6 +369,7 @@
             showLoginPage();
         }
 
+        // Přiřazení událostí k elementům
         document.getElementById('new-photo').addEventListener('change', function(e) {
             if (e.target.files[0]) {
                 compressImage(e.target.files[0], function(base64Result) {
@@ -346,7 +377,20 @@
                 });
             }
         });
-    };
+
+        document.getElementById("to-register-btn").addEventListener("click", showRegisterPage);
+        document.getElementById("to-login-btn").addEventListener("click", showLoginPage);
+        document.getElementById("login-submit-btn").addEventListener("click", handleLogin);
+        document.getElementById("register-submit-btn").addEventListener("click", handleRegister);
+        document.getElementById("logout-btn").addEventListener("click", handleLogout);
+        document.getElementById("add-debtor-btn").addEventListener("click", addDebtor);
+        document.getElementById("reset-filter-btn").addEventListener("click", () => setAdminFilter('all'));
+        document.getElementById("search-input").addEventListener("input", renderDebtors);
+
+        document.getElementById("box-debt").addEventListener("click", () => setAdminFilter('debt'));
+        document.getElementById("box-surplus").addEventListener("click", () => setAdminFilter('surplus'));
+        document.getElementById("box-all").addEventListener("click", () => setAdminFilter('all'));
+    });
 
     function showRegisterPage() {
         document.getElementById("login-section").classList.add("hidden");
@@ -373,7 +417,8 @@
         loadDebtors();
     }
 
-    function handleRegister() {
+    // REGISTRACE DO FIREBASE
+    async function handleRegister() {
         const u = document.getElementById("reg-username").value.trim().toLowerCase();
         const p = document.getElementById("reg-password").value.trim();
         const pCheck = document.getElementById("reg-password-check").value.trim();
@@ -382,31 +427,53 @@
         if (!u || !p || !pCheck) { errorEl.innerText = "Musíš vyplnit všechna pole!"; return; }
         if (p !== pCheck) { errorEl.innerText = "Zadaná hesla se neshodují!"; return; }
 
-        let users = JSON.parse(localStorage.getItem("app_users")) || {};
-        if (users[u]) { errorEl.innerText = "Tohle uživatelské jméno už existuje!"; return; }
+        try {
+            const userRef = doc(db, "app_users", u);
+            const userSnap = await getDoc(userRef);
 
-        users[u] = p;
-        localStorage.setItem("app_users", JSON.stringify(users));
-        localStorage.setItem(`debtors_${u}`, JSON.stringify([]));
+            if (userSnap.exists()) {
+                errorEl.innerText = "Tohle uživatelské jméno už existuje!";
+                return;
+            }
 
-        currentUser = u;
-        sessionStorage.setItem("current_user", u);
-        showMainPage();
+            // Zapíšeme uživatelský profil rovnou i s prázdným polem dlužníků
+            await setDoc(userRef, { 
+                password: hashPasswordSync(p),
+                debtorsList: []
+            });
+
+            currentUser = u;
+            sessionStorage.setItem("current_user", u);
+            showMainPage();
+        } catch (err) {
+            errorEl.innerText = "Chyba: Zkontrolujte, zda máte ve Firebase Firestore nastavená pravidla (Rules) na 'allow read, write: if true;'.";
+            console.error(err);
+        }
     }
 
-    function handleLogin() {
+    // PŘIHLÁŠENÍ DO FIREBASE
+    async function handleLogin() {
         const u = document.getElementById("username").value.trim().toLowerCase();
         const p = document.getElementById("password").value.trim();
         const errorEl = document.getElementById("login-error");
 
-        let users = JSON.parse(localStorage.getItem("app_users")) || {};
+        if (!u || !p) { errorEl.innerText = "Vyplň jméno a heslo!"; return; }
 
-        if (users[u] && users[u] === p) {
-            currentUser = u;
-            sessionStorage.setItem("current_user", u);
-            showMainPage();
-        } else {
-            errorEl.innerText = "Nesprávné jméno nebo heslo!";
+        try {
+            const userRef = doc(db, "app_users", u);
+            const userSnap = await getDoc(userRef);
+            const hashedInputPassword = hashPasswordSync(p);
+
+            if (userSnap.exists() && userSnap.data().password === hashedInputPassword) {
+                currentUser = u;
+                sessionStorage.setItem("current_user", u);
+                showMainPage();
+            } else {
+                errorEl.innerText = "Nesprávné jméno nebo heslo!";
+            }
+        } catch (err) {
+            errorEl.innerText = "Chyba při přihlašování. Zkontrolujte připojení k internetu.";
+            console.error(err);
         }
     }
 
@@ -417,20 +484,33 @@
         showLoginPage();
     }
 
-    function loadDebtors() {
-        const stored = localStorage.getItem(`debtors_${currentUser}`);
-        debtors = stored ? JSON.parse(stored) : [];
-        calculateStats();
-        renderDebtors();
+    // NAČTENÍ DAT DLUŽNÍKŮ Z FIREBASE
+    async function loadDebtors() {
+        try {
+            const docRef = doc(db, "app_users", currentUser);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists() && docSnap.data().debtorsList) {
+                debtors = docSnap.data().debtorsList;
+            } else {
+                debtors = [];
+            }
+            calculateStats();
+            renderDebtors();
+        } catch (err) {
+            console.error("Nelze načíst data z Firebase: ", err);
+        }
     }
 
-    function saveDebtors() {
+    // ULOŽENÍ DAT DLUŽNÍKŮ DO FIREBASE
+    async function saveDebtors() {
         try {
-            localStorage.setItem(`debtors_${currentUser}`, JSON.stringify(debtors));
+            const docRef = doc(db, "app_users", currentUser);
+            await setDoc(docRef, { debtorsList: debtors }, { merge: true });
             calculateStats();
             renderDebtors();
         } catch (e) {
-            alert("Úložiště localstorage je plné! Zkuste odebrat dlužníky nebo nahrávat menší fotografie dlužníků.");
+            alert("Došlo k chybě při zápisu dat do Firebase.");
+            console.error(e);
         }
     }
 
@@ -480,7 +560,6 @@
         const noteInput = document.getElementById("new-note");
         const addressInput = document.getElementById("new-address");
         const idcardInput = document.getElementById("new-idcard");
-        const photoInput = document.getElementById("new-photo");
 
         const name = nameInput.value.trim();
         const amount = parseFloat(amountInput.value);
@@ -503,11 +582,12 @@
         saveDebtors();
 
         nameInput.value = ""; amountInput.value = ""; noteInput.value = "";
-        addressInput.value = ""; idcardInput.value = ""; photoInput.value = "";
+        addressInput.value = ""; idcardInput.value = ""; document.getElementById("new-photo").value = "";
         tempPhotoBase64 = "";
     }
 
-    function updateDebt(id, type) {
+    // Propojení vnitřních modulárních funkcí pro inline HTML eventy (onclick)
+    window.updateDebt = function(id, type) {
         const amountInput = document.getElementById(`amount-${id}`);
         const noteInput = document.getElementById(`note-${id}`);
         const amount = parseFloat(amountInput.value);
@@ -530,32 +610,29 @@
         saveDebtors();
     }
 
-    function enableEditMode(id) {
+    window.enableEditMode = function(id) {
         editingDebtorId = id;
         const debtor = debtors.find(d => d.id === id);
         tempEditPhotoBase64 = debtor ? debtor.photo : "";
         renderDebtors();
+    }
 
-        const editPhotoInput = document.getElementById(`edit-photo-${id}`);
-        if (editPhotoInput) {
-            editPhotoInput.addEventListener('change', function(e) {
-                if (e.target.files[0]) {
-                    compressImage(e.target.files[0], function(base64Result) {
-                        tempEditPhotoBase64 = base64Result;
-                        document.getElementById(`avatar-img-${id}`).src = base64Result;
-                    });
-                }
+    window.handleEditPhotoChange = function(id, files) {
+        if (files[0]) {
+            compressImage(files[0], function(base64Result) {
+                tempEditPhotoBase64 = base64Result;
+                document.getElementById(`avatar-img-${id}`).src = base64Result;
             });
         }
     }
 
-    function cancelEditMode() {
+    window.cancelEditMode = function() {
         editingDebtorId = null;
         tempEditPhotoBase64 = "";
         renderDebtors();
     }
 
-    function saveDebtorChanges(id) {
+    window.saveDebtorChanges = function(id) {
         const debtor = debtors.find(d => d.id === id);
         if (!debtor) return;
 
@@ -575,22 +652,29 @@
         saveDebtors();
     }
 
-    function deleteDebtor(id) {
-        const users = JSON.parse(localStorage.getItem("app_users")) || {};
-        const correctPassword = users[currentUser];
+    window.deleteDebtor = async function(id) {
+        try {
+            const userRef = doc(db, "app_users", currentUser);
+            const userSnap = await getDoc(userRef);
+            const correctHashedPassword = userSnap.data().password;
 
-        const inputPassword = prompt("⚠️ BEZPEČNOSTNÍ POŽADAVEK\nPro kompletní smazání této karty musíte zadat vaše přihlašovací heslo:");
-        
-        if (inputPassword === null) return;
+            const inputPassword = prompt("⚠️ BEZPEČNOSTNÍ POŽADAVEK\nPro kompletní smazání této karty musíte zadat vaše přihlašovací heslo:");
+            if (inputPassword === null) return;
 
-        if (inputPassword === correctPassword) {
-            if (confirm("Heslo je správné. Opravdu si přejete dlužníka nevratně smazat z databáze?")) {
-                debtors = debtors.filter(d => d.id !== id);
-                if (editingDebtorId === id) editingDebtorId = null;
-                saveDebtors();
+            const hashedInput = hashPasswordSync(inputPassword.trim());
+
+            if (hashedInput === correctHashedPassword) {
+                if (confirm("Heslo je správné. Opravdu si přejete dlužníka nevratně smazat z databáze?")) {
+                    debtors = debtors.filter(d => d.id !== id);
+                    if (editingDebtorId === id) editingDebtorId = null;
+                    saveDebtors();
+                }
+            } else {
+                alert("❌ Zadáno nesprávné heslo! Karta nebyla smazána.");
             }
-        } else {
-            alert("❌ Zadáno nesprávné heslo! Karta nebyla smazána.");
+        } catch (err) {
+            console.error(err);
+            alert("Došlo k chybě při ověřování hesla.");
         }
     }
 
@@ -669,7 +753,7 @@
                         </div>
                         <div class="edit-input-group" style="margin-top:10px;">
                             <label>📸 Změnit fotografii:</label>
-                            <input type="file" id="edit-photo-${debtor.id}" accept="image/*" style="border:none; padding:2px 0;">
+                            <input type="file" id="edit-photo-${debtor.id}" accept="image/*" style="border:none; padding:2px 0;" onchange="handleEditPhotoChange(${debtor.id}, this.files)">
                         </div>
                     </div>
                 `;
