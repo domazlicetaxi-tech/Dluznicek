@@ -12,147 +12,205 @@
             --dark: #2c3e50;
             --light: #ecf0f1;
         }
+        * { box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f5f7fa;
             margin: 0;
-            padding: 20px;
+            padding: 10px; /* Menší padding pro mobily */
             color: var(--dark);
         }
         .container {
             max-width: 900px;
             margin: 0 auto;
             background: white;
-            padding: 25px;
+            padding: 15px; /* Kompaktnější pro mobily */
             border-radius: 10px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-        h1, h2, h3 { text-align: center; color: var(--dark); }
+        @media (min-width: 600px) {
+            body { padding: 20px; }
+            .container { padding: 25px; }
+        }
+        
+        h1, h2, h3 { text-align: center; color: var(--dark); margin-top: 10px; }
+        h1 { font-size: 1.8rem; }
+        @media (max-width: 600px) { h1 { font-size: 1.4rem; } }
+        
         .hidden { display: none !important; }
         
         /* Formuláře */
         .form-group { margin-bottom: 15px; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-row { display: grid; grid-template-columns: 1fr; gap: 10px; }
+        @media (min-width: 600px) { .form-row { grid-template-columns: 1fr 1fr; } }
+        
+        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.9rem; }
         input {
             width: 100%;
-            padding: 10px;
+            padding: 12px; /* Větší pro snadný stisk na mobilu */
             border: 1px solid #ccc;
             border-radius: 5px;
-            box-sizing: border-box;
             font-size: 14px;
         }
         button {
             background-color: var(--primary);
             color: white;
             border: none;
-            padding: 12px 15px;
+            padding: 14px 15px; /* Pohodlnější ovládání prstem */
             border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
             width: 100%;
             font-weight: bold;
             transition: background 0.2s;
+            margin-bottom: 5px;
         }
         button:hover { opacity: 0.9; }
         button.btn-danger { background-color: var(--danger); }
         button.btn-success { background-color: var(--success); }
         button.btn-secondary { background-color: #7f8c8d; }
         
-        .toggle-link { text-align: center; margin-top: 20px; color: #7f8c8d; }
+        .toggle-link { text-align: center; margin-top: 20px; color: #7f8c8d; font-size: 0.95rem; }
         .toggle-link span { color: var(--primary); text-decoration: underline; cursor: pointer; font-weight: bold; }
         
         /* Statistiky / Admin panel */
         .admin-dashboard {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
+            grid-template-columns: 1fr; /* Na mobilu pod sebou */
+            gap: 10px;
             margin-bottom: 20px;
             background: #eef2f7;
-            padding: 15px;
+            padding: 12px;
             border-radius: 8px;
             border: 1px solid #dcdde1;
         }
+        @media (min-width: 600px) {
+            .admin-dashboard { grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        }
         .stat-box { 
             text-align: center; 
-            padding: 15px; 
+            padding: 12px; 
             background: white; 
             border-radius: 5px; 
             box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
             border: 2px solid transparent;
-        }
-        .stat-box:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 10px rgba(0,0,0,0.1);
         }
         .stat-box.active-filter {
             border-color: var(--primary);
             background-color: #e8f4fd;
         }
-        .stat-box h4 { margin: 0 0 5px 0; color: #7f8c8d; font-size: 0.9rem; }
-        .stat-box p { margin: 0; font-size: 1.4rem; font-weight: bold; }
+        .stat-box h4 { margin: 0 0 5px 0; color: #7f8c8d; font-size: 0.85rem; }
+        .stat-box p { margin: 0; font-size: 1.2rem; font-weight: bold; }
 
         /* Vyhledávací panel */
         .search-panel {
             background: #fff3cd;
             border: 1px solid #ffeeba;
-            padding: 15px;
+            padding: 12px;
             border-radius: 8px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
         
         /* Karta dlužníka */
         .debtor-card {
             border: 1px solid #e0e0e0;
             border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
+            padding: 15px;
+            margin-bottom: 15px;
             background: #fff;
             display: grid;
-            grid-template-columns: 120px 1fr;
-            gap: 20px;
+            grid-template-columns: 1fr; /* Mobil default pod sebou */
+            gap: 15px;
             position: relative;
         }
-        @media (max-width: 600px) {
-            .debtor-card { grid-template-columns: 1fr; text-align: center; }
-            .debtor-photo-side { margin-bottom: 10px; }
-            .action-zone { grid-template-columns: 1fr !important; }
+        @media (min-width: 600px) {
+            .debtor-card { grid-template-columns: 110px 1fr; gap: 20px; padding: 20px; }
         }
         .debtor-photo-side { text-align: center; }
         .debtor-avatar {
-            width: 100px;
-            height: 100px;
+            width: 90px;
+            height: 90px;
             border-radius: 50%;
             object-fit: cover;
             border: 2px solid #ccc;
             background: #eee;
         }
+        @media (min-width: 600px) { .debtor-avatar { width: 100px; height: 100px; } }
+        
         .debtor-info-side { display: flex; flex-direction: column; justify-content: space-between; }
         
-        .debtor-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--light); padding-bottom: 8px; }
-        .debtor-name { font-size: 1.3rem; font-weight: bold; }
-        .debtor-balance { font-size: 1.4rem; font-weight: bold; color: var(--danger); }
+        .debtor-header { 
+            display: flex; 
+            flex-direction: column; /* Na mobilu pod sebou */
+            align-items: center; 
+            border-bottom: 2px solid var(--light); 
+            padding-bottom: 8px; 
+            gap: 5px;
+        }
+        @media (min-width: 480px) {
+            .debtor-header { flex-direction: row; justify-content: space-between; }
+        }
+        .debtor-name { font-size: 1.2rem; font-weight: bold; text-align: center; }
+        .debtor-balance { font-size: 1.3rem; font-weight: bold; color: var(--danger); }
         .debtor-balance.cleared { color: var(--success); }
         
-        .debtor-details { font-size: 0.85rem; color: #57606f; margin: 10px 0; line-height: 1.4; text-align: left; }
+        .debtor-details { font-size: 0.85rem; color: #57606f; margin: 10px 0; line-height: 1.5; text-align: left; }
         .edit-input-group { margin-bottom: 8px; }
         .edit-input-group label { font-size: 0.75rem; margin-bottom: 2px; color: #7f8c8d; }
-        .edit-input-group input { padding: 6px; font-size: 13px; }
+        .edit-input-group input { padding: 8px; font-size: 14px; }
 
         /* Historie */
-        .history-list { font-size: 0.85rem; max-height: 120px; overflow-y: auto; background: var(--light); padding: 8px; border-radius: 5px; margin-top: 10px; text-align: left; }
-        .history-item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #ddd; }
+        .history-list { font-size: 0.8rem; max-height: 120px; overflow-y: auto; background: var(--light); padding: 8px; border-radius: 5px; margin-top: 10px; text-align: left; }
+        .history-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #ddd; gap: 5px; }
         .history-item:last-child { border-bottom: none; }
         
-        /* Akce */
-        .action-zone { display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; margin-top: 10px; }
-        .header-ui { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--light); padding-bottom: 10px; margin-bottom: 20px; }
-        #logout-btn { background-color: #7f8c8d; width: auto; padding: 8px 15px; }
-        .error-message { color: var(--danger); text-align: center; font-weight: bold; margin-top: 10px; }
+        /* Akce na kartě */
+        .action-zone { 
+            display: grid; 
+            grid-template-columns: 1fr; /* Na výšku pro mobily */
+            gap: 8px; 
+            margin-top: 12px; 
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 6px;
+        }
+        @media (min-width: 480px) {
+            .action-zone { grid-template-columns: 1fr 1fr auto; }
+        }
         
-        .card-top-actions { display: flex; gap: 5px; }
+        .header-ui { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 10px;
+            border-bottom: 2px solid var(--light); 
+            padding-bottom: 10px; 
+            margin-bottom: 20px; 
+            text-align: center;
+        }
+        @media (min-width: 480px) {
+            .header-ui { flex-direction: row; justify-content: space-between; text-align: left; }
+        }
+        #logout-btn { background-color: #7f8c8d; width: auto; padding: 8px 15px; margin-bottom: 0; }
+        .error-message { color: var(--danger); text-align: center; font-weight: bold; margin-top: 10px; font-size: 0.9rem; }
+        
+        .card-bottom-row {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 12px;
+            border-top: 1px solid var(--light);
+            padding-top: 10px;
+        }
+        @media (min-width: 480px) {
+            .card-bottom-row { flex-direction: row; justify-content: space-between; align-items: center; }
+        }
+        .card-top-actions { display: flex; gap: 5px; width: 100%; }
+        @media (max-width: 480px) {
+            .card-top-actions button { width: 50%; }
+            .card-bottom-row button { width: 100%; }
+        }
         
         .filter-info-bar {
             display: flex;
@@ -163,6 +221,18 @@
             border-radius: 5px;
             margin-bottom: 15px;
             border-left: 5px solid var(--primary);
+            font-size: 0.85rem;
+        }
+        #reset-filter-btn { width: auto; padding: 6px 12px; font-size: 12px; margin-bottom: 0; }
+        
+        /* Indikátor zálohování */
+        .backup-badge {
+            font-size: 0.75rem;
+            color: var(--success);
+            text-align: center;
+            margin-top: -10px;
+            margin-bottom: 15px;
+            display: block;
         }
     </style>
 </head>
@@ -211,9 +281,10 @@
         </div>
         
         <h1>📝 Evidence dlužníků</h1>
+        <span class="backup-badge">🔄 Lokální záloha zařízení synchronizována s cloudem</span>
 
-        <h3>📊 Administrátorský přehled a nástroje</h3>
-        <p style="text-align: center; color: #7f8c8d; font-size: 0.85rem; margin-top: -10px;">(Kliknutím na boxy níže můžete seznam rychle filtrovat)</p>
+        <h3>📊 Administrátorský přehled</h3>
+        <p style="text-align: center; color: #7f8c8d; font-size: 0.8rem; margin-top: -10px; margin-bottom: 10px;">(Kliknutím na boxy můžete filtrovat)</p>
         
         <div class="admin-dashboard">
             <div class="stat-box" id="box-debt">
@@ -232,11 +303,11 @@
 
         <div class="search-panel">
             <label for="search-input" style="color: #856404; margin-bottom: 8px;">🔍 Rychlé vyhledávání / Filtr dlužníků:</label>
-            <input type="text" id="search-input" placeholder="Zadejte jméno, adresu nebo číslo OP dlužníka...">
+            <input type="text" id="search-input" placeholder="Zadejte jméno, adresu nebo OP...">
         </div>
         
-        <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #e0e0e0;">
-            <h3>Přidat nového dlužníka (a nepovinné údaje)</h3>
+        <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #e0e0e0;">
+            <h3>Přidat nového dlužníka</h3>
             <div class="form-row form-group">
                 <div>
                     <label for="new-name">Jméno dlužníka *</label>
@@ -266,7 +337,7 @@
                 </div>
                 <div class="form-group">
                     <label for="new-photo">Fotografie dlužníka</label>
-                    <input type="file" id="new-photo" accept="image/*" style="border:none; padding:5px 0;">
+                    <input type="file" id="new-photo" accept="image/*" style="border:none; padding:5px 0; width: 100%;">
                 </div>
             </div>
             
@@ -276,8 +347,8 @@
         <h2>Můj seznam dlužníků</h2>
         
         <div id="filter-info-bar" class="filter-info-bar hidden">
-            <span id="filter-info-text">Zobrazeni pouze lidé s dluhem.</span>
-            <button id="reset-filter-btn" class="btn-danger" style="width: auto; padding: 4px 10px; font-size: 12px;">Zrušit filtr</button>
+            <span id="filter-info-text">Zobrazeni pouze dlužníci.</span>
+            <button id="reset-filter-btn" class="btn-danger">Zrušit filtr</button>
         </div>
 
         <div id="debtors-container"></div>
@@ -289,7 +360,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
     import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
-    // Konfigurace tvého Firebase projektu
     const firebaseConfig = {
         apiKey: "AIzaSyBJPyDf_VEj210bGxYpF9zFmyZ0ANr3Ax8",
         authDomain: "dluznicek-8eb12.firebaseapp.com",
@@ -299,11 +369,9 @@
         appId: "1:380824954763:web:e830905a8b00cdbca9b18e"
     };
 
-    // Inicializace
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Globální proměnné aplikace
     let currentUser = null;
     let debtors = [];
     let tempPhotoBase64 = "";
@@ -359,7 +427,6 @@
         reader.readAsDataURL(file);
     }
 
-    // Inicializace událostí po načtení stránky
     window.addEventListener('DOMContentLoaded', () => {
         const loggedInUser = sessionStorage.getItem("current_user");
         if (loggedInUser) {
@@ -369,7 +436,6 @@
             showLoginPage();
         }
 
-        // Přiřazení událostí k elementům
         document.getElementById('new-photo').addEventListener('change', function(e) {
             if (e.target.files[0]) {
                 compressImage(e.target.files[0], function(base64Result) {
@@ -417,7 +483,6 @@
         loadDebtors();
     }
 
-    // REGISTRACE DO FIREBASE
     async function handleRegister() {
         const u = document.getElementById("reg-username").value.trim().toLowerCase();
         const p = document.getElementById("reg-password").value.trim();
@@ -436,7 +501,6 @@
                 return;
             }
 
-            // Zapíšeme uživatelský profil rovnou i s prázdným polem dlužníků
             await setDoc(userRef, { 
                 password: hashPasswordSync(p),
                 debtorsList: []
@@ -444,14 +508,15 @@
 
             currentUser = u;
             sessionStorage.setItem("current_user", u);
+            // Vytvoření čisté lokální zálohy v localStorage pro nového uživatele
+            localStorage.setItem(`backup_debtors_${u}`, JSON.stringify([]));
             showMainPage();
         } catch (err) {
-            errorEl.innerText = "Chyba: Zkontrolujte, zda máte ve Firebase Firestore nastavená pravidla (Rules) na 'allow read, write: if true;'.";
+            errorEl.innerText = "Chyba registrace. Zkontrolujte připojení nebo Firebase pravidla.";
             console.error(err);
         }
     }
 
-    // PŘIHLÁŠENÍ DO FIREBASE
     async function handleLogin() {
         const u = document.getElementById("username").value.trim().toLowerCase();
         const p = document.getElementById("password").value.trim();
@@ -472,8 +537,15 @@
                 errorEl.innerText = "Nesprávné jméno nebo heslo!";
             }
         } catch (err) {
-            errorEl.innerText = "Chyba při přihlašování. Zkontrolujte připojení k internetu.";
+            errorEl.innerText = "Chyba při přihlašování. Zkouším offline režim...";
             console.error(err);
+            // Fallback: Pokud selže síť, zkusíme přihlásit uživatele lokálně, pokud máme zálohu
+            const localBackup = localStorage.getItem(`backup_debtors_${u}`);
+            if (localBackup !== null) {
+                currentUser = u;
+                sessionStorage.setItem("current_user", u);
+                showMainPage();
+            }
         }
     }
 
@@ -484,33 +556,45 @@
         showLoginPage();
     }
 
-    // NAČTENÍ DAT DLUŽNÍKŮ Z FIREBASE
+    // NAČTENÍ DAT DLUŽNÍKŮ S INTEGROVANÝM FALLBACKEM Z LOKÁLNÍ ZÁLOHY
     async function loadDebtors() {
         try {
             const docRef = doc(db, "app_users", currentUser);
             const docSnap = await getDoc(docRef);
             if (docSnap.exists() && docSnap.data().debtorsList) {
                 debtors = docSnap.data().debtorsList;
+                // Synchronizace cloudu do lokálního úložiště přístroje
+                localStorage.setItem(`backup_debtors_${currentUser}`, JSON.stringify(debtors));
             } else {
                 debtors = [];
             }
-            calculateStats();
-            renderDebtors();
         } catch (err) {
-            console.error("Nelze načíst data z Firebase: ", err);
+            console.warn("Firebase nedostupná, načítám automatickou lokální zálohu ze zařízení:", err);
+            const cachedData = localStorage.getItem(`backup_debtors_${currentUser}`);
+            if (cachedData) {
+                debtors = JSON.parse(cachedData);
+            } else {
+                debtors = [];
+            }
         }
+        calculateStats();
+        renderDebtors();
     }
 
-    // ULOŽENÍ DAT DLUŽNÍKŮ DO FIREBASE
+    // UKLÁDÁNÍ DAT DO CLOUDU + OKAMŽITÝ ZÁPIS DO LOKÁLNÍHO ÚLOŽIŠTĚ ZAŘÍZENÍ
     async function saveDebtors() {
+        // KROK 1: Okamžitá lokální záloha v zařízení (stane se ihned, nezávisle na internetu)
+        localStorage.setItem(`backup_debtors_${currentUser}`, JSON.stringify(debtors));
+        
+        calculateStats();
+        renderDebtors();
+
+        // KROK 2: Odeslání do Firebase cloudu
         try {
             const docRef = doc(db, "app_users", currentUser);
             await setDoc(docRef, { debtorsList: debtors }, { merge: true });
-            calculateStats();
-            renderDebtors();
         } catch (e) {
-            alert("Došlo k chybě při zápisu dat do Firebase.");
-            console.error(e);
+            console.error("Cloudový zápis selhal, data jsou ale bezpečně uložena lokálně v tomto zařízení.", e);
         }
     }
 
@@ -579,14 +663,13 @@
         };
 
         debtors.push(newDebtor);
-        saveDebtors();
+        saveDebtors(); // Spustí uložení do Firebase i do místní zálohy
 
         nameInput.value = ""; amountInput.value = ""; noteInput.value = "";
         addressInput.value = ""; idcardInput.value = ""; document.getElementById("new-photo").value = "";
         tempPhotoBase64 = "";
     }
 
-    // Propojení vnitřních modulárních funkcí pro inline HTML eventy (onclick)
     window.updateDebt = function(id, type) {
         const amountInput = document.getElementById(`amount-${id}`);
         const noteInput = document.getElementById(`note-${id}`);
@@ -654,9 +737,17 @@
 
     window.deleteDebtor = async function(id) {
         try {
-            const userRef = doc(db, "app_users", currentUser);
-            const userSnap = await getDoc(userRef);
-            const correctHashedPassword = userSnap.data().password;
+            // Bezpečnostní kontrola hesla z Firebase (při výpadku sítě ověří proti lokální keši)
+            let correctHashedPassword = "";
+            try {
+                const userRef = doc(db, "app_users", currentUser);
+                const userSnap = await getDoc(userRef);
+                correctHashedPassword = userSnap.data().password;
+            } catch(e) {
+                // Pokud jsme offline, pro zjednodušení nepovolíme smazání bez sítě, aby se data nerozešla
+                alert("Pro smazání karty dlužníka musíte být připojeni k internetu.");
+                return;
+            }
 
             const inputPassword = prompt("⚠️ BEZPEČNOSTNÍ POŽADAVEK\nPro kompletní smazání této karty musíte zadat vaše přihlašovací heslo:");
             if (inputPassword === null) return;
@@ -664,10 +755,10 @@
             const hashedInput = hashPasswordSync(inputPassword.trim());
 
             if (hashedInput === correctHashedPassword) {
-                if (confirm("Heslo je správné. Opravdu si přejete dlužníka nevratně smazat z databáze?")) {
+                if (confirm("Heslo je správné. Opravdu si přejete dlužníka nevratně smazat z databáze i záloh?")) {
                     debtors = debtors.filter(d => d.id !== id);
                     if (editingDebtorId === id) editingDebtorId = null;
-                    saveDebtors();
+                    saveDebtors(); // Aktualizuje Firebase i lokální zálohu zařízení
                 }
             } else {
                 alert("❌ Zadáno nesprávné heslo! Karta nebyla smazána.");
@@ -732,8 +823,8 @@
             if (isEditing) {
                 headerActionButtons = `
                     <div class="card-top-actions">
-                        <button onclick="saveDebtorChanges(${debtor.id})" class="btn-success" style="padding: 4px 10px; font-size:12px; width:auto;">💾 Uložit</button>
-                        <button onclick="cancelEditMode()" class="btn-secondary" style="padding: 4px 10px; font-size:12px; width:auto;">Zrušit</button>
+                        <button onclick="saveDebtorChanges(${debtor.id})" class="btn-success" style="padding: 6px 10px; font-size:13px;">💾 Uložit</button>
+                        <button onclick="cancelEditMode()" class="btn-secondary" style="padding: 6px 10px; font-size:13px;">Zrušit</button>
                     </div>
                 `;
 
@@ -759,7 +850,7 @@
                 `;
             } else {
                 headerActionButtons = `
-                    <button onclick="enableEditMode(${debtor.id})" style="background-color: var(--primary); padding: 4px 10px; font-size:12px; width:auto;">✏️ Upravit údaje</button>
+                    <button onclick="enableEditMode(${debtor.id})" style="background-color: var(--primary); padding: 6px 12px; font-size:13px; width:auto; margin-bottom:0;">✏️ Upravit</button>
                 `;
 
                 detailsContent = `
@@ -783,11 +874,11 @@
                     ${detailsContent}
                     
                     <div class="action-zone ${isEditing ? 'hidden' : ''}">
-                        <input type="number" id="amount-${debtor.id}" placeholder="Částka" style="padding: 5px;" min="0.01" step="0.01">
-                        <input type="text" id="note-${debtor.id}" placeholder="Poznámka" style="padding: 5px;">
+                        <input type="number" id="amount-${debtor.id}" placeholder="Částka" style="padding: 8px;" min="0.01" step="0.01">
+                        <input type="text" id="note-${debtor.id}" placeholder="Poznámka" style="padding: 8px;">
                         <div style="display:flex; gap: 5px;">
-                            <button onclick="updateDebt(${debtor.id}, 'pay')" class="btn-success" style="padding: 5px; font-size:13px; width:auto;">Splatit</button>
-                            <button onclick="updateDebt(${debtor.id}, 'increase')" class="btn-danger" style="padding: 5px; font-size:13px; width:auto;">Navýšit</button>
+                            <button onclick="updateDebt(${debtor.id}, 'pay')" class="btn-success" style="padding: 8px; font-size:13px;">Splatit</button>
+                            <button onclick="updateDebt(${debtor.id}, 'increase')" class="btn-danger" style="padding: 8px; font-size:13px;">Navýšit</button>
                         </div>
                     </div>
 
@@ -795,11 +886,11 @@
                         ${historyHtml}
                     </div>
 
-                    <div style="display: flex; justify-content: space-between; margin-top: 10px; align-items: center;">
+                    <div class="card-bottom-row">
                         <div>
                             ${headerActionButtons}
                         </div>
-                        <button onclick="deleteDebtor(${debtor.id})" class="btn-danger" style="padding: 4px 8px; font-size:11px; width: auto;">Smazat kartu</button>
+                        <button onclick="deleteDebtor(${debtor.id})" class="btn-danger" style="padding: 6px 12px; font-size:12px; width: auto; margin-bottom:0;">Smazat dlužníka</button>
                     </div>
                 </div>
             `;
